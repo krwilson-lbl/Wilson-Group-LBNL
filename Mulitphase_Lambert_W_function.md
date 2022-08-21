@@ -1,0 +1,2 @@
+# Wilson-Group-LBNL This Mathematica code (Multiphase_Lambert_W.nb) is used to compute multiphase kinetics using Lambert W functions.  In Mathematica the Lambert W function is the ProductLog function.  This code is referenced in the following publication.
+K.R. Wilson, A. P. Prophet and M.D. Willis, "A Kinetic Model for Predicting Trace Gas Uptake and Reaction" https://doi.org/10.26434/chemrxiv-2022-m88b6
