@@ -1,0 +1,483 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     17581,        475]
+NotebookOptionsPosition[     16375,        452]
+NotebookOutlinePosition[     16781,        468]
+CellTagsIndexPosition[     16738,        465]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["Mathematica code for quasi-steady state surface description:", "Text",
+ CellChangeTimes->{{3.8635596977676277`*^9, 3.863559738761199*^9}, {
+  3.863571236792613*^9, 
+  3.8635712644524593`*^9}},ExpressionUUID->"a8fbaeba-19fc-4c71-b83f-\
+c97a26a02960"],
+
+Cell["\<\
+Outlined below is the approach used to solve for surface concentrations of \
+the six species [I-], [IO-], [IO2-], [ClO3-],[O3], and [site].
+
+First, Solve[] function is used to solve the 6 steady-state equations given \
+in the main text (Eqs. (9)-(14)):\
+\>", "Text",
+ CellChangeTimes->{{3.860458994652076*^9, 3.8604590544967985`*^9}, {
+   3.860459254357956*^9, 3.8604592936955986`*^9}, {3.86045944590431*^9, 
+   3.860459471561903*^9}, {3.8604600595031023`*^9, 3.860460061195588*^9}, {
+   3.863552718695216*^9, 3.8635527195829887`*^9}, {3.8635549987159476`*^9, 
+   3.8635550011886005`*^9}, 3.8635596184939547`*^9, 
+   3.863559684243662*^9},ExpressionUUID->"bebdb25b-1e22-4003-8aac-\
+7862b48716dd"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Sol", " ", "=", 
+   RowBox[{"Solve", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Isurface", "==", 
+        RowBox[{"kdesolv$", "*", "Ibulk", "*", 
+         RowBox[{"Site", "/", 
+          RowBox[{"(", 
+           RowBox[{"ksolv$", "+", 
+            RowBox[{"krxnI$", "*", "O3surface"}]}], ")"}]}]}]}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"IOsurface", " ", "==", " ", 
+        RowBox[{"krxnI$", "*", "Isurface", "*", 
+         RowBox[{"O3surface", "/", 
+          RowBox[{"(", 
+           RowBox[{"ksolv$", "+", 
+            RowBox[{"krxnIO$", "*", "O3surface"}]}], ")"}]}]}]}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"IO2surface", " ", "==", 
+        RowBox[{
+         RowBox[{"krxnIO$", "/", "krxnIO2$"}], " ", "*", " ", "IOsurface"}]}],
+        ",", "\[IndentingNewLine]", 
+       RowBox[{"ClO3surface", " ", "==", " ", 
+        RowBox[{"kdesolv$ClO3", "*", "ClO3bulk", "*", 
+         RowBox[{"Site", "/", 
+          RowBox[{"(", "ksolv$ClO3", ")"}]}]}]}], ",", "\[IndentingNewLine]", 
+       RowBox[{"O3surface", "==", 
+        RowBox[{"kads$", "*", 
+         RowBox[{"O3gas", "/", 
+          RowBox[{"(", 
+           RowBox[{"kdes$", "+", 
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{"krxnI$", "*", "Isurface"}], "+", 
+              RowBox[{"krxnIO$", "*", "IOsurface"}], "+", 
+              RowBox[{"krxnIO2$", "*", "IO2surface"}]}], ")"}]}], ")"}]}]}]}],
+        ",", "\[IndentingNewLine]", 
+       RowBox[{"Site", "==", " ", 
+        RowBox[{
+        "Gamma$", " ", "-", "Isurface", "-", "IOsurface", "-", "IO2surface", 
+         "-", "ClO3surface"}]}]}], " ", "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+      "Isurface", ",", "IOsurface", ",", "IO2surface", ",", "ClO3surface", 
+       ",", "O3surface", ",", "Site"}], "}"}]}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.8604591042369146`*^9, 3.8604592308751297`*^9}, {
+   3.8604593053161592`*^9, 3.8604593303678436`*^9}, {3.8604593618222647`*^9, 
+   3.8604594099414196`*^9}, {3.8604596498877363`*^9, 3.86045967440795*^9}, {
+   3.8604601990608354`*^9, 3.8604602014335036`*^9}, {3.860460578379533*^9, 
+   3.8604605812236724`*^9}, 3.8604615871114244`*^9, {3.863553297804531*^9, 
+   3.863553352700592*^9}, {3.863553544994425*^9, 3.863553577885287*^9}},
+ CellLabel->"In[76]:=",ExpressionUUID->"49dc99f8-e3ff-4ea1-8705-15d5e98d0d40"],
+
+Cell["\<\
+
+Solutions for the six concentrations are first isolated from the solution \
+set, then defined as functions of bulk-liquid phase iodide, bulk-liquid phase \
+chlorate, and gas-phase ozone concentrations:\
+\>", "Text",
+ CellChangeTimes->{{3.860459475525713*^9, 3.8604594815829496`*^9}, {
+  3.8604595128671017`*^9, 3.8604595410378504`*^9}, {3.8604599828674498`*^9, 
+  3.860459984898404*^9}, {3.8604607691620502`*^9, 3.86046077540569*^9}, {
+  3.8635533838139772`*^9, 3.8635534138321395`*^9}, {3.863571303402348*^9, 
+  3.863571356675706*^9}, {3.863889295646612*^9, 3.8638894424971867`*^9}, {
+  3.8638896029577208`*^9, 3.863889619417943*^9}, {3.8639762599232736`*^9, 
+  3.863976265775891*^9}},ExpressionUUID->"8603fc0f-495e-4135-a78c-\
+7d0d43ea51dd"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"O3part", " ", "=", " ", 
+   RowBox[{"Part", "[", 
+    RowBox[{
+     RowBox[{"O3surface", "/.", "Sol"}], ",", "2"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Ipart", " ", "=", " ", 
+   RowBox[{"Part", "[", 
+    RowBox[{
+     RowBox[{"Isurface", "/.", "Sol"}], ",", "2"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"IOpart", " ", "=", " ", 
+   RowBox[{"Part", "[", 
+    RowBox[{
+     RowBox[{"IOsurface", "/.", "Sol"}], ",", "2"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"IO2part", " ", "=", " ", 
+   RowBox[{"Part", "[", 
+    RowBox[{
+     RowBox[{"IO2surface", "/.", "Sol"}], ",", "2"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClO3part", "=", 
+   RowBox[{"Part", "[", 
+    RowBox[{
+     RowBox[{"ClO3surface", "/.", "Sol"}], ",", "2"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Sitepart", " ", "=", " ", 
+   RowBox[{"Part", "[", 
+    RowBox[{
+     RowBox[{"Site", "/.", "Sol"}], ",", "2"}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.860459548599496*^9, 3.860459644145943*^9}, {
+  3.86045967929758*^9, 3.8604596794762087`*^9}, {3.860460204987233*^9, 
+  3.8604602311054993`*^9}, {3.8635530815816884`*^9, 3.863553090517028*^9}},
+ CellLabel->"In[77]:=",ExpressionUUID->"51775853-a06e-4b44-80d7-32247262431b"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"O3function", "[", 
+    RowBox[{"arg0_", ",", "arg1_", ",", "arg2_"}], "]"}], ":=", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"O3part", "/.", 
+     RowBox[{"(", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Ibulk", " ", "->", "arg0"}], ",", 
+        RowBox[{"O3gas", "->", "arg1"}], ",", 
+        RowBox[{"ClO3bulk", "->", "arg2"}]}], "}"}], ")"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Ifunction", "[", 
+    RowBox[{"arg0_", ",", "arg1_", ",", "arg2_"}], "]"}], ":=", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Ipart", "/.", 
+     RowBox[{"(", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Ibulk", " ", "->", "arg0"}], ",", 
+        RowBox[{"O3gas", "->", "arg1"}], ",", 
+        RowBox[{"ClO3bulk", "->", "arg2"}]}], "}"}], ")"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"IOfunction", "[", 
+    RowBox[{"arg0_", ",", "arg1_", ",", "arg2_"}], "]"}], ":=", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"IOpart", "/.", 
+     RowBox[{"(", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Ibulk", " ", "->", "arg0"}], ",", 
+        RowBox[{"O3gas", "->", "arg1"}], ",", 
+        RowBox[{"ClO3bulk", "->", "arg2"}]}], "}"}], ")"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"IO2function", "[", 
+    RowBox[{"arg0_", ",", "arg1_", ",", "arg2_"}], "]"}], ":=", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"IO2part", "/.", 
+     RowBox[{"(", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Ibulk", " ", "->", "arg0"}], ",", 
+        RowBox[{"O3gas", "->", "arg1"}], ",", 
+        RowBox[{"ClO3bulk", "->", "arg2"}]}], "}"}], ")"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ClO3function", "[", 
+    RowBox[{"arg0_", ",", "arg1_", ",", "arg2_"}], "]"}], ":=", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"ClO3part", "/.", 
+     RowBox[{"(", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Ibulk", " ", "->", "arg0"}], ",", 
+        RowBox[{"O3gas", "->", "arg1"}], ",", 
+        RowBox[{"ClO3bulk", "->", "arg2"}]}], "}"}], ")"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Sitefunction", "[", 
+    RowBox[{"arg0_", ",", "arg1_", ",", "arg2_"}], "]"}], ":=", 
+   RowBox[{"Abs", "[", 
+    RowBox[{"Sitepart", "/.", 
+     RowBox[{"(", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"Ibulk", "->", "arg0"}], ",", 
+        RowBox[{"O3gas", "->", "arg1"}], ",", 
+        RowBox[{"ClO3bulk", "->", "arg2"}]}], "}"}], ")"}]}], "]"}]}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{{3.860459686792508*^9, 3.86045975937461*^9}, {
+  3.8604598221925764`*^9, 3.8604598909275284`*^9}, {3.8606214267595387`*^9, 
+  3.8606214555593376`*^9}, {3.8635534415246234`*^9, 3.863553532960685*^9}, {
+  3.863887837006856*^9, 3.863887845090649*^9}, {3.8638879167321396`*^9, 
+  3.863887940579916*^9}},
+ CellLabel->
+  "In[124]:=",ExpressionUUID->"5a293cf8-8f4b-43ec-bb46-3306955245a1"],
+
+Cell["\<\
+Absolute value of the solutions above are used since there exists a small \
+imaginary component to the analytical expressions. Evaluating only the real \
+component instead produces virtually identical results due to the large \
+difference in magnitude.
+\
+\>", "Text",
+ CellChangeTimes->{{3.86388962858873*^9, 3.8638897583434343`*^9}, {
+  3.8639759290391245`*^9, 3.8639759350593247`*^9}, {3.8639762437808456`*^9, 
+  3.863976247949814*^9}},ExpressionUUID->"d2ac468e-2027-4b0c-9366-\
+4769fa6d7f4e"],
+
+Cell["\<\
+The functions above can be used to predict steady-state surface \
+concentrations for given bulk [I-], [ClO3-], and gas-phase [O3]. \
+\[OpenCurlyDoubleQuote]O3function\[CloseCurlyDoubleQuote] as found here is \
+used to compute [O3]ads in Fig. 7 of the main text and \
+\[OpenCurlyDoubleQuote]Ifunction\[CloseCurlyDoubleQuote] used to compute \
+[I]ads in Fig. 8. These expressions for adsorbed ozone and iodide \
+concentrations are also used in Eq. (15) to compute surface-specific uptake \
+coefficients.
+\
+\>", "Text",
+ CellChangeTimes->{{3.8604599442460184`*^9, 3.860459995060299*^9}, {
+   3.860460065971624*^9, 3.8604601010774517`*^9}, {3.8604601417515182`*^9, 
+   3.860460194588909*^9}, {3.8604602939508085`*^9, 3.8604603257899556`*^9}, {
+   3.860460381548809*^9, 3.860460409290862*^9}, {3.860460453302968*^9, 
+   3.8604604558002243`*^9}, {3.863555026881647*^9, 3.8635551158704925`*^9}, {
+   3.863571378267144*^9, 3.8635713832862096`*^9}, {3.8635714264345675`*^9, 
+   3.8635714317077537`*^9}, {3.863889728271073*^9, 3.8638897294225626`*^9}, 
+   3.8639762329572573`*^9},ExpressionUUID->"607e0ff1-8f46-4008-8e48-\
+abf63296e18b"],
+
+Cell["\<\
+Kinetic Parameters: (including units, corresponding steps in Table S1, and \
+notes)\
+\>", "Text",
+ CellChangeTimes->{{3.860461394536293*^9, 3.860461401690686*^9}, {
+  3.8604614583104696`*^9, 3.860461470218972*^9}, {3.86355366454897*^9, 
+  3.8635536763512487`*^9}, {3.863554584381669*^9, 
+  3.8635545921105337`*^9}},ExpressionUUID->"97dd27aa-ed38-4bc8-a079-\
+1450817f96ba"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"krxnI$", " ", "=", " ", "1.99*^-12"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{
+     FormBox[
+      TemplateBox[{"cm", "3"},
+       "Superscript"],
+      TraditionalForm], " ", 
+     TemplateBox[{"molecule", 
+       RowBox[{"-", "1"}]},
+      "Superscript"], " ", 
+     TemplateBox[{"s", 
+       RowBox[{"-", "1"}]},
+      "Superscript"]}], ",", " ", 
+    RowBox[{"Step", " ", "S10"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"krxnIO$", " ", "=", " ", "7*^-10"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{
+     FormBox[
+      TemplateBox[{"cm", "3"},
+       "Superscript"],
+      TraditionalForm], " ", 
+     TemplateBox[{"molecule", 
+       RowBox[{"-", "1"}]},
+      "Superscript"], " ", 
+     TemplateBox[{"s", 
+       RowBox[{"-", "1"}]},
+      "Superscript"]}], ",", " ", 
+    RowBox[{"Step", " ", "S11"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"krxnIO2$", " ", "=", " ", "7*^-10"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{
+     FormBox[
+      TemplateBox[{"cm", "3"},
+       "Superscript"],
+      TraditionalForm], " ", 
+     TemplateBox[{"molecule", 
+       RowBox[{"-", "1"}]},
+      "Superscript"], " ", 
+     TemplateBox[{"s", 
+       RowBox[{"-", "1"}]},
+      "Superscript"]}], ",", " ", 
+    RowBox[{"Step", " ", "S12"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"kdesolv$", " ", "=", " ", "3.5*^-19"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{
+     FormBox[
+      TemplateBox[{"cm", "3"},
+       "Superscript"],
+      TraditionalForm], " ", 
+     TemplateBox[{"molecule", 
+       RowBox[{"-", "1"}]},
+      "Superscript"], " ", 
+     TemplateBox[{"s", 
+       RowBox[{"-", "1"}]},
+      "Superscript"]}], ",", " ", 
+    RowBox[{
+     RowBox[{"Steps", " ", "S3"}], "-", "S5"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"kdesolv$ClO3", "=", "3.5*^-19"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{
+     FormBox[
+      TemplateBox[{"cm", "3"},
+       "Superscript"],
+      TraditionalForm], " ", 
+     TemplateBox[{"molecule", 
+       RowBox[{"-", "1"}]},
+      "Superscript"], " ", 
+     TemplateBox[{"s", 
+       RowBox[{"-", "1"}]},
+      "Superscript"]}], ",", " ", 
+    RowBox[{"Step", " ", "S6"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ksolv$", " ", "=", " ", "3"}], ";"}], 
+  RowBox[{"(*", 
+   RowBox[{
+    TemplateBox[{
+      RowBox[{" ", "s"}], 
+      RowBox[{"-", "1"}]},
+     "Superscript"], ",", " ", 
+    RowBox[{
+     RowBox[{"Steps", " ", "S3"}], "-", "S5"}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ksolv$ClO3", " ", "=", " ", "7"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    TemplateBox[{"s", 
+      RowBox[{"-", "1"}]},
+     "Superscript"], ",", " ", 
+    RowBox[{"Step", " ", "S6"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"kads$", " ", "=", " ", "4.88*^7"}], ";"}], " ", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    TemplateBox[{"s", 
+      RowBox[{"-", "1"}]},
+     "Superscript"], ",", " ", 
+    RowBox[{
+     RowBox[{"Step", " ", 
+      RowBox[{"S1", " ", "--"}], " ", "kads$", " ", "is", " ", "defined", " ",
+       "here", " ", "as", " ", "pseudo"}], "-", 
+     RowBox[{
+     "first", " ", "order", " ", "using", " ", "\[Sigma]", " ", "\[Times]", 
+      " ", "9", "\[Times]", 
+      TemplateBox[{"10", 
+        RowBox[{"-", "11"}]},
+       "Superscript"], " ", "from", " ", "Step", " ", "S1", " ", "multiplied",
+       " ", 
+      RowBox[{"by", " ", "[", "O3site", "]"}]}]}], ",", " ", 
+    RowBox[{
+     RowBox[{"as", " ", "[", "O3", "]"}], "ads", " ", 
+     RowBox[{"<<", " ", 
+      RowBox[{"[", "O3site", "]"}]}], " ", "for", " ", "all", " ", 
+     "conditions", " ", "studied"}]}], " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"kdes$", " ", "=", " ", "5.44*^6"}], ";"}], 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    TemplateBox[{"s", 
+      RowBox[{"-", "1"}]},
+     "Superscript"], ",", " ", 
+    RowBox[{"Step", " ", "S1"}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Gamma$", " ", "=", " ", "6.38*^21"}], ";"}], " ", 
+  RowBox[{"(*", " ", 
+   RowBox[{"molecule", " ", 
+    FormBox[
+     RowBox[{
+      TemplateBox[{"cm", 
+        RowBox[{"-", "3"}]},
+       "Superscript"], ",", " ", 
+      RowBox[{
+       RowBox[{
+       "maximum", " ", "site", " ", "number", " ", "for", " ", "Steps", " ", 
+        "S3"}], "-", "S6"}]}],
+     TraditionalForm]}], " ", "*)"}]}]}], "Input",
+ CellChangeTimes->{{3.860461408824273*^9, 3.860461485856172*^9}, {
+   3.8604616023699207`*^9, 3.860461650891597*^9}, {3.860461753784351*^9, 
+   3.8604617703814297`*^9}, {3.860621773484434*^9, 3.8606217752235703`*^9}, {
+   3.8635536025737305`*^9, 3.8635536252207193`*^9}, {3.8635536801688843`*^9, 
+   3.8635536859734373`*^9}, {3.863553743798256*^9, 3.8635538271518555`*^9}, {
+   3.8635538948724413`*^9, 3.863554075816357*^9}, {3.8635541329958935`*^9, 
+   3.863554180727434*^9}, {3.8635544200966167`*^9, 3.8635545709776525`*^9}, 
+   3.863554910082677*^9, {3.86357145661696*^9, 3.8635715011128917`*^9}},
+ CellLabel->"In[93]:=",ExpressionUUID->"a0b5b7dc-614a-453c-b561-864e807b79ee"]
+},
+WindowSize->{858., 449.5},
+WindowMargins->{{Automatic, 43.5}, {-1, Automatic}},
+FrontEndVersion->"13.0 for Microsoft Windows (64-bit) (December 2, 2021)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"b87e3499-8a48-4f34-85d9-24ca67b45643"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 255, 4, 35, "Text",ExpressionUUID->"a8fbaeba-19fc-4c71-b83f-c97a26a02960"],
+Cell[816, 26, 706, 13, 104, "Text",ExpressionUUID->"bebdb25b-1e22-4003-8aac-7862b48716dd"],
+Cell[1525, 41, 2410, 54, 143, "Input",ExpressionUUID->"49dc99f8-e3ff-4ea1-8705-15d5e98d0d40"],
+Cell[3938, 97, 754, 13, 81, "Text",ExpressionUUID->"8603fc0f-495e-4135-a78c-7d0d43ea51dd"],
+Cell[4695, 112, 1363, 39, 124, "Input",ExpressionUUID->"51775853-a06e-4b44-80d7-32247262431b"],
+Cell[6061, 153, 2980, 85, 124, "Input",ExpressionUUID->"5a293cf8-8f4b-43ec-bb46-3306955245a1"],
+Cell[9044, 240, 505, 10, 104, "Text",ExpressionUUID->"d2ac468e-2027-4b0c-9366-4769fa6d7f4e"],
+Cell[9552, 252, 1137, 19, 127, "Text",ExpressionUUID->"607e0ff1-8f46-4008-8e48-abf63296e18b"],
+Cell[10692, 273, 382, 8, 35, "Text",ExpressionUUID->"97dd27aa-ed38-4bc8-a079-1450817f96ba"],
+Cell[11077, 283, 5294, 167, 257, "Input",ExpressionUUID->"a0b5b7dc-614a-453c-b561-864e807b79ee"]
+}
+]
+*)
+
